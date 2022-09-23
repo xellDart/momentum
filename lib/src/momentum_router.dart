@@ -72,6 +72,7 @@ class MomentumRouter extends MomentumService {
     Type? route, {
     Route Function(BuildContext, Widget)? transition,
     RouterParam? params,
+    bool replace = false,
   }) async {
     var findWidgetOfType = _pages.firstWhereOrNull(
       (e) => e.runtimeType == route,
@@ -96,7 +97,10 @@ class MomentumRouter extends MomentumService {
       }
       _currentRouteParam = params;
       _momentumEvent!.trigger(RouterSignal(_currentRouteParam));
-      Navigator.pushAndRemoveUntil(context, r, (r) => false);
+      if (replace)
+        Navigator.pushAndRemoveUntil(context, r, (r) => false);
+      else
+        Navigator.push(context, r);
     } else {
       print('[$MomentumService -> $MomentumRouter]: Unable to '
           'find page widget of type "$route".');
@@ -198,19 +202,13 @@ class MomentumRouter extends MomentumService {
   /// The function to navigate to a specific
   /// route. You specify the route using a type
   /// NOT a string route name or a [MaterialPageRoute].
-  static void goto(
-    BuildContext context,
-    Type? route, {
-    Route Function(BuildContext, Widget)? transition,
-    RouterParam? params,
-  }) {
+  static void goto(BuildContext context, Type? route,
+      {Route Function(BuildContext, Widget)? transition,
+      RouterParam? params,
+      bool replace = false}) {
     var service = Momentum.service<MomentumRouter>(context);
-    service._goto(
-      context,
-      route,
-      transition: transition,
-      params: params,
-    );
+    service._goto(context, route,
+        transition: transition, params: params, replace: replace);
   }
 
   /// Works like [Navigation.pop].
